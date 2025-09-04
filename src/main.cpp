@@ -2,6 +2,7 @@
 
 // IDF Headers
 #include <driver/gpio.h>
+#include <driver/ledc.h>
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -9,29 +10,38 @@
 // Component Headers
 
 // Private Headers
+#include "PinAssignments.hpp"
+#include "InfraredSensors.hpp"
+#include "Motor.hpp"
+#include "OnboardLed.hpp"
+#include "RtosUtils.hpp"
 
 void gpio_setup() {
-    static const char* TAG = "GPIO Setup";
-
+    static const char* TAG = "GPIO SETUP";
+    
     // Onboard LED
     ESP_LOGI(TAG, "Setting up GPIO for LED.");
-    gpio_config_t onboardLedGpioConfig = {
-        .pin_bit_mask = 1ULL << GPIO_NUM_2,
-        .mode = GPIO_MODE_OUTPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE
-    };
-    ESP_ERROR_CHECK(gpio_config(&onboardLedGpioConfig));
-
+    onboard_led_pin_setup();
+    
+    // IR Pins
+    ESP_LOGI(TAG, "Setting up GPIO for Infrared Sensors.");
+    infrared_sensors_pin_setup();
+    
     // Motor Pins
+    ESP_LOGI(TAG, "Setting up GPIO for Motor.");
+    motor_pin_setup();
+    
+    ESP_LOGI(TAG, "Completed.");
+}
 
-    // Current Sense ADC Pins
-
+void create_tasks() {
+    static const char* TAG = "RTOS";
+    
 
 }
 
+
 extern "C" void app_main() {
     gpio_setup();
-    
+    create_tasks();
 }
